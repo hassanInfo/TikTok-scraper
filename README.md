@@ -17,11 +17,11 @@ This script is designed to scrape TikTok data based on provided keywords using S
 
 3. Run the script with the desired parameters
    ```bash
-    --keywords: keyword to search on TikTok.
+    --keywords: keywords to search on TikTok.
     --n_post: Number of posts to scrape(default: 300).
     --delay: Delay in seconds between processing steps (default: 10).
 4. Example
    ```bash
-    python main.py --keyword 'morocco' --n_post 300 --delay 15
+    python main.py --keywords 'morocco, maroc, المغرب' --n_post 300 --delay 15
 ## Notes
 Make sure you have the appropriate WebDriver for Microsoft Edge installed and available in your system's PATH.
