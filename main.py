@@ -28,4 +28,4 @@ if __name__ == '__main__':
         # Save the collected data 
         tiktok_scraper.save_data()
         
-    merge_csv_files('./data', 'tiktok_data')
+    merge_csv_files('./data', 'tiktok_data.csv')
