@@ -17,7 +17,7 @@ This script is designed to scrape TikTok data based on provided keywords using S
 
 3. Run the script with the desired parameters
    ```bash
-    --keywords: List of keywords to search on TikTok.
+    --keywords: keyword to search on TikTok.
     --n_post: Number of posts to scrape(default: 300).
     --delay: Delay in seconds between processing steps (default: 10).
 4. Example
