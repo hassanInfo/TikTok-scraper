@@ -1,5 +1,6 @@
 import argparse
 from tiktok_scraper import TikTokScraper
+from config import configure
 
 def parse_arguments():
     """
@@ -16,6 +17,7 @@ def parse_arguments():
     return parser.parse_args()
 
 if __name__ == '__main__':
+    configure()
     # Parse command-line arguments
     args = parse_arguments()
     # Create an instance of TikTokScraper

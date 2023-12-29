@@ -3,6 +3,12 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.edge.options import Options
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.common.by import By
+from dotenv import load_dotenv
+import os 
+from selenium.webdriver.support.ui import WebDriverWait
+
 
 class TikTokScraper:
     def __init__(self, keywords, n_post, delay):
@@ -18,7 +24,8 @@ class TikTokScraper:
         self.n_post = n_post
         self.delay = delay
         self.driver = self.load_driver()
-        self.data = None
+        self.data = []
+
 
     def load_driver(self):
         """
@@ -40,6 +47,7 @@ class TikTokScraper:
             print(f"Error while creating WebDriver: {e}")
             return None
 
+
     def get_posts(self):
         """
         Extracts TikTok posts from the current page.
@@ -50,12 +58,13 @@ class TikTokScraper:
         try:
             page_source = self.driver.page_source
             soup = BeautifulSoup(page_source, 'html.parser')
-            target = soup.find("div", {"data-e2e": "search_top-item-list"})
+            target = soup.find("div", {"data-e2e": "search_video-item-list"})
             posts = target.findAll("div", {"class": "css-1soki6-DivItemContainerForSearch e19c29qe10"})
             return posts
         except Exception as e:
             print(f"Error while extracting TikTok posts: {e}")
             return []
+
 
     def save_data(self):
         """
@@ -69,7 +78,7 @@ class TikTokScraper:
                 os.makedirs(data_dir)
 
             # Save the DataFrame to a CSV file within the 'data' folder
-            csv_path = os.path.join(data_dir, 'tiktok_data.csv')
+            csv_path = os.path.join(data_dir, f'tiktok_data_{self.keywords}.csv')
             self.data.to_csv(csv_path, index=False)
         except Exception as e:
             print(f"Error while saving data to CSV: {e}")
@@ -81,44 +90,72 @@ class TikTokScraper:
         Args:
         - n_post (int): Number of posts to scroll for
         """
-        posts = []
         last_height = self.driver.execute_script("return document.body.scrollHeight")
-        while len(posts) < self.n_post:
+        while len(self.data) < self.n_post:
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(self.delay)
             new_height = self.driver.execute_script("return document.body.scrollHeight")
             if new_height == last_height:
-                print("While loop broken")
+                print("No more posts available")
                 break
             last_height = new_height
-            posts = self.get_posts()
-            print("N posts found ---------->  ", len(posts))
+            self.data = self.get_posts()
+            print("N posts found ---------->  ", len(self.data))
+        
 
     def scrape_tiktok_data(self):
         """
         Scrapes TikTok data based on the provided keyword.
         """
         try:
-            self.driver.get(f'https://www.tiktok.com/search?q={self.keywords}')
+            self.driver.get("https://www.tiktok.com")
+            time.sleep(.2)
+            login_btn = WebDriverWait(self.driver, 30).until(ec.visibility_of_element_located((By.XPATH,".//*[@data-e2e='top-login-button']")))
+            login_btn.click()
+            user_login = WebDriverWait(self.driver, 30).until(ec.visibility_of_element_located((By.XPATH,"//*[contains(text(), 'Use phone / email / username')]")))
+            user_login.click()
+            username = WebDriverWait(self.driver, 30).until(ec.visibility_of_element_located((By.XPATH,"//*[contains(text(), 'Log in with email or username')]")))
+            username.click()
+            user = WebDriverWait(self.driver, 30).until(ec.visibility_of_element_located((By.XPATH,".//*[@name='username']")))
+            user.send_keys(os.getenv('user_name'))
+            password = WebDriverWait(self.driver, 30).until(ec.visibility_of_element_located((By.XPATH,".//*[@type='password']")))
+            password.send_keys(os.getenv('password'))
+            login = WebDriverWait(self.driver, 30).until(ec.visibility_of_element_located((By.XPATH,".//*[@class='e1w6iovg0 css-11sviba-Button-StyledButton ehk74z00']")))
+            login.click()
+            time.sleep(40)
+            search_bar = WebDriverWait(self.driver, 30).until(ec.visibility_of_element_located((By.XPATH,".//*[@type='search']")))
+            search_bar.send_keys(self.keywords)
+            search_btn = WebDriverWait(self.driver, 30).until(ec.visibility_of_element_located((By.XPATH,".//*[@data-e2e='search-box-button']")))
+            search_btn.click()
+            #time.sleep(40)
+            video_item = WebDriverWait(self.driver, 30).until(ec.visibility_of_element_located((By.XPATH,"//*[@id='tabs-0-tab-search_video']")))
+            video_item.click()
             time.sleep(self.delay)
             self.scroll_down()
-            posts = self.get_posts()
-
-            data = []
-            for post in posts[:self.n_post]:
+        
+            temp = []
+            for post in self.data[:self.n_post]:
                 tags_list = post.findAll("strong", {"class": "css-1p6dp51-StrongText ejg0rhn2"})
-                data.append({
-                    'URL': post.find("a").get("href"),
-                    'Date': post.find("div", {"class": "css-dennn6-DivTimeTag e19c29qe15"}).text,
-                    'Description': post.find("span", {"class": "css-j2a19r-SpanText efbd9f0"}).text,
-                    'Username': post.find("p", {"class": "css-2zn17v-PUniqueId etrd4pu6"}).text,
-                    'Views': post.find("strong", {"class": "css-ws4x78-StrongVideoCount etrd4pu10"}).text,
-                    'Tags': " ".join(tag.text for tag in tags_list)
-                })
+                url = post.find("a").get("href")
+                date_ = post.find("div", {"class": "css-dennn6-DivTimeTag e19c29qe15"})
+                desc = post.find("span", {"class": "css-j2a19r-SpanText efbd9f0"})
+                username = post.find("p", {"class": "css-2zn17v-PUniqueId etrd4pu6"})
+                views = post.find("strong", {"class": "css-ws4x78-StrongVideoCount etrd4pu10"})
 
-            self.data = pd.DataFrame(data)
+                if url and date_ and desc and username and views:
+                    temp.append({
+                        'URL': post.find("a").get("href"),
+                        'Date': date_.text,
+                        'Description': desc.text,
+                        'Username': username.text,
+                        'Views': views.text,
+                        'Tags': " ".join(tag.text for tag in tags_list)
+                    })
+
+            self.data = pd.DataFrame(temp)
         except Exception as e:
             print(f"Error while scraping TikTok data: {e}")
+
 
     def run_scraper(self):
         """
