@@ -11,7 +11,7 @@ def parse_arguments():
     - argparse.Namespace: Object containing parsed arguments
     """
     parser = argparse.ArgumentParser(description='TikTok Scraper')
-    parser.add_argument('--keyword', type=str, help='keyword to search on TikTok')
+    parser.add_argument('--keywords', type=str, help='keywords to search on TikTok')
     parser.add_argument('--n_post', type=int, default=300, help='Number of posts to scrape (default: 300)')
     parser.add_argument('--delay', type=int, default=10, help='Delay in seconds between processing steps (default: 10)')
 
@@ -23,7 +23,7 @@ if __name__ == '__main__':
     args = parse_arguments()
     for k in keywords:
         # Create an instance of TikTokScraper
-        tiktok_scraper = TikTokScraper(keyword, args.n_post, args.delay)
+        tiktok_scraper = TikTokScraper(k, args.n_post, args.delay)
         tiktok_scraper.run_scraper()
         # Save the collected data 
         tiktok_scraper.save_data()
