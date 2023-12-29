@@ -20,9 +20,8 @@ if __name__ == '__main__':
     configure()
     # Parse command-line arguments
     args = parse_arguments()
-    for keyword in keywords:
-        # Create an instance of TikTokScraper
-        tiktok_scraper = TikTokScraper(keyword, args.n_post, args.delay)
-        tiktok_scraper.run_scraper()
-        # Save the collected data 
-        tiktok_scraper.save_data()
+    # Create an instance of TikTokScraper
+    tiktok_scraper = TikTokScraper(keyword, args.n_post, args.delay)
+    tiktok_scraper.run_scraper()
+    # Save the collected data 
+    tiktok_scraper.save_data()
