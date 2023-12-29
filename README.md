@@ -22,6 +22,6 @@ This script is designed to scrape TikTok data based on provided keywords using S
     --delay: Delay in seconds between processing steps (default: 10).
 4. Example
    ```bash
-    python main.py --keywords 'morocco maroc المغرب' --n_post 2 --delay 20
+    python main.py --keyword 'morocco' --n_post 300 --delay 15
 ## Notes
 Make sure you have the appropriate WebDriver for Microsoft Edge installed and available in your system's PATH.
