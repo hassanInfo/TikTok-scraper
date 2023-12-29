@@ -11,16 +11,16 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 
 class TikTokScraper:
-    def __init__(self, keywords, n_post, delay):
+    def __init__(self, keyword, n_post, delay):
         """
         Initialize TikTokScraper object.
 
         Args:
-        - keywords (str): The keyword to search on TikTok.
+        - keyword (str): The keyword to search on TikTok.
         - n_post (int): Number of posts to scrape.
         - delay (float): Delay in seconds between actions to simulate human-like behavior.
         """
-        self.keywords = keywords
+        self.keyword = keyword
         self.n_post = n_post
         self.delay = delay
         self.driver = self.load_driver()
@@ -78,7 +78,7 @@ class TikTokScraper:
                 os.makedirs(data_dir)
 
             # Save the DataFrame to a CSV file within the 'data' folder
-            csv_path = os.path.join(data_dir, f'tiktok_data_{self.keywords}.csv')
+            csv_path = os.path.join(data_dir, f'tiktok_data_{self.keyword}.csv')
             self.data.to_csv(csv_path, index=False)
         except Exception as e:
             print(f"Error while saving data to CSV: {e}")
@@ -124,7 +124,7 @@ class TikTokScraper:
             login.click()
             time.sleep(40)
             search_bar = WebDriverWait(self.driver, 30).until(ec.visibility_of_element_located((By.XPATH,".//*[@type='search']")))
-            search_bar.send_keys(self.keywords)
+            search_bar.send_keys(self.keyword)
             search_btn = WebDriverWait(self.driver, 30).until(ec.visibility_of_element_located((By.XPATH,".//*[@data-e2e='search-box-button']")))
             search_btn.click()
             #time.sleep(40)
