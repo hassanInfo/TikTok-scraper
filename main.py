@@ -1,6 +1,7 @@
 import argparse
 from tiktok_scraper import TikTokScraper
 from config import configure
+from utils import merge_csv_files
 
 def parse_arguments():
     """
